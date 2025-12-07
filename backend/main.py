@@ -36,7 +36,7 @@ def _build_accounts_from_excel() -> List[Dict]:
         try:
             customer_id = str(row.get("Customer ID"))
             util = float(row.get("Utilisation %", 0))
-            avg_pay_ratio = float(row.get("Average Payment Ratio", 0))
+            avg_pay_ratio = float(row.get("Avg Payment Ratio", 0))
             min_due_freq = float(row.get("Min Due Paid Frequency", 0))
             cash_withdrawal = float(row.get("Cash Withdrawal %", 0))
             dpd_next = int(row.get("DPD Bucket Next Month", 0))
@@ -48,14 +48,18 @@ def _build_accounts_from_excel() -> List[Dict]:
         # Risk score calculation
         # ------------------------------
         base_score = (
-            0.3 * (util / 100.0) +
-            0.2 * (1 - (avg_pay_ratio / 100.0)) +
-            0.25 * (min_due_freq / 100.0) +
-            0.25 * (cash_withdrawal / 100.0)
+            0.35 * (util / 100.0) +
+            0.25 * (1 - (avg_pay_ratio / 100.0)) +
+            0.2 * (min_due_freq / 100.0) +
+            0.2 * (cash_withdrawal / 100.0)
         )
 
         # If already delinquent, bump risk slightly
-        if dpd_next > 0:
+        if dpd_next == 3:
+            base_score = min(1.0, base_score + 0.6)
+        elif dpd_next == 2:
+            base_score = min(1.0, base_score + 0.4)
+        elif dpd_next == 1:
             base_score = min(1.0, base_score + 0.2)
 
         risk_score = round(min(1.0, max(0.0, base_score)), 2)
@@ -72,7 +76,7 @@ def _build_accounts_from_excel() -> List[Dict]:
 
         # Probability of rolling to 30+ DPD
         predicted_roll_to_30 = round(
-            min(1.0, risk_score + (0.1 if dpd_next > 0 else 0.0)), 2
+            min(1.0, risk_score), 2
         )
 
         record = {
@@ -80,8 +84,11 @@ def _build_accounts_from_excel() -> List[Dict]:
             "product": "HDFC Credit Card",
             "current_dpd": dpd_next,
             "utilization_pct": util,
-            "risk_score": risk_score,
+            "avg_payment_ratio": avg_pay_ratio,
+            "min_due_paid_freq": min_due_freq,
+            "cash_withdrawal_pct": cash_withdrawal,
             "risk_band": risk_band,
+            "risk_score": risk_score,
             "predicted_roll_to_30_plus": predicted_roll_to_30,
         }
 
@@ -107,8 +114,12 @@ def health_check():
 def get_portfolio_summary():
     total_accounts = len(ACCOUNTS)
 
+    critical_risk = len(
+        [a for a in ACCOUNTS if a["risk_band"] in ["Critical"]]
+    )
+
     high_risk = len(
-        [a for a in ACCOUNTS if a["risk_band"] in ["High", "Critical"]]
+        [a for a in ACCOUNTS if a["risk_band"] in ["High"]]
     )
 
     medium_risk = len(
@@ -126,6 +137,7 @@ def get_portfolio_summary():
 
     return {
         "total_accounts": total_accounts,
+        "critical_risk_accounts": critical_risk,
         "high_risk_accounts": high_risk,
         "medium_risk_accounts": medium_risk,
         "low_risk_accounts": low_risk,
@@ -149,14 +161,17 @@ def list_accounts(risk_band: Optional[str] = None):
     return accounts
 
 
-@app.get("/api/accounts/{account_id}")
-def get_account_detail(account_id: str):
+@app.get("/api/accounts/{customer_id}")
+def get_account_detail(customer_id: str):
     for a in ACCOUNTS:
-        if a["account_id"] == account_id:
+        if a["customer_id"] == customer_id:
             return a
 
     raise HTTPException(status_code=404, detail="Account not found")
 
 
-# Run manually:
+# How to Run:
+# Paste the following commands in terminal:
+# python -m venv .venv
+# .venv\Scripts\Activate.ps1
 # uvicorn main:app --host 127.0.0.1 --port 8000

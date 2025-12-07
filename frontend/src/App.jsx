@@ -70,7 +70,11 @@ function App() {
               <div className="value">{summary.total_accounts}</div>
             </div>
             <div className="card">
-              <div className="label">High / Critical Risk</div>
+              <div className="label">Critical Risk</div>
+              <div className="value">{summary.critical_risk_accounts}</div>
+            </div>
+            <div className="card">
+              <div className="label">High Risk</div>
               <div className="value">{summary.high_risk_accounts}</div>
             </div>
             <div className="card">
@@ -116,11 +120,11 @@ function App() {
               <thead>
                 <tr>
                   <th>Customer ID</th>
-                  <th>Product</th>
+                  {/* <th>Product</th> */}
                   <th>Current DPD</th>
                   <th>Utilization %</th>
                   <th>Avg Payment Ratio</th>
-                  <th>MinDue_Paid_Frequency</th>
+                  <th>Min_Due_Paid_Freq</th>
                   <th>Cash_Withdrawal %</th>
                   <th>Risk Band</th>
                   <th>Predicted Roll to 30+ DPD %</th>
@@ -137,16 +141,16 @@ function App() {
                         : ''
                     }
                   >
-                    <td>{a.customer_name}</td>
-                    <td>{a.product}</td>
+                    <td>{a.customer_id}</td>
+                    {/* <td>{a.product}</td> */}
                     <td>{a.current_dpd}</td>
                     <td>{a.utilization_pct}%</td>
+                    {/* <td>{a.utilization_pct}%</td>
                     <td>{a.utilization_pct}%</td>
-                    <td>{a.utilization_pct}%</td>
-                    <td>{a.utilization_pct}%</td>
-                    {/* <td>{a.avg_payment_ratio}</td>
-                    <td>{mindue_paid_frequency}</td>
-                    <td>{a.cash_withdrawal}%</td> */}
+                    <td>{a.utilization_pct}%</td> */}
+                    <td>{a.avg_payment_ratio}</td>
+                    <td>{a.min_due_paid_freq}</td>
+                    <td>{a.cash_withdrawal_pct}%</td>
                     <td>{a.risk_band}</td>
                     <td>{Math.round(a.predicted_roll_to_30_plus * 100)}%</td>
                   </tr>
@@ -160,11 +164,12 @@ function App() {
           <h3>Account Detail</h3>
           {selectedAccount ? (
             <div className="detail-card">
-              <h4>{selectedAccount.customer_name} ({selectedAccount.account_id})</h4>
+              <h4>{selectedAccount.customer_id}</h4>
               <p><strong>Product:</strong> {selectedAccount.product}</p>
               <p><strong>Current DPD:</strong> {selectedAccount.current_dpd} months</p>
               <p><strong>Utilization:</strong> {selectedAccount.utilization_pct}% of limit</p>
               <p><strong>Risk Band:</strong> {selectedAccount.risk_band}</p>
+              <p><strong>Risk Score:</strong> {selectedAccount.risk_score}</p>
               <p><strong>Predicted roll to 30+ DPD (next cycles):</strong> {Math.round(selectedAccount.predicted_roll_to_30_plus * 100)}%</p>
             </div>
           ) : (
