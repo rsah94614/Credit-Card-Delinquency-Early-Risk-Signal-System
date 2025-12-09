@@ -170,8 +170,7 @@ def get_account_detail(customer_id: str):
     raise HTTPException(status_code=404, detail="Account not found")
 
 
-# How to Run:
-# Paste the following commands in terminal:
+# Run manually:
 # python -m venv .venv
 # .venv\Scripts\Activate.ps1
 # uvicorn main:app --host 127.0.0.1 --port 8000

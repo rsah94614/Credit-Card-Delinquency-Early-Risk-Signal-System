@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 .App {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -66,8 +70,8 @@
   gap: 10px;
 }
 
-.accounts-list{
-  width:70%;
+.accounts-list {
+  width: 70%;
 }
 
 .account-detail {
@@ -128,4 +132,218 @@
   color: #b91c1c;
   border-radius: 4px;
   border: 1px solid #fecaca;
+}
+
+/* Intervention Slide Styles */
+.intervention-slide {
+  position: fixed;
+  top: 0;
+  right: -450px;
+  /* Start off-screen */
+  width: 400px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intervention-slide.open {
+  right: 0;
+}
+
+.slide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.slide-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.section-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.intervention-card {
+  background-color: #f8f9fa;
+  border-left: 4px solid #007bff;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.intervention-card.Critical {
+  border-color: #d32f2f;
+  background-color: #fff5f5;
+}
+
+.intervention-card.High {
+  border-color: #f57c00;
+  background-color: #fffaf0;
+}
+
+.intervention-card.Medium {
+  border-color: #fbc02d;
+  background-color: #fffde7;
+}
+
+.intervention-card.Low {
+  border-color: #388e3c;
+  background-color: #f0fdf4;
+}
+
+.recommendation-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.action-btn {
+  background-color: #003399;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background-color: #002266;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.detail-item {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.detail-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+
+.detail-value {
+  font-size: 1rem;
+  color: #111;
+  font-weight: 500;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+  .App-header {
+    padding: 15px 20px;
+  }
+
+  .App-header h1 {
+    font-size: 1.25rem;
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .summary-section,
+  .filters-section,
+  .content-section {
+    padding: 15px 20px;
+  }
+
+  /* Stack Summary Cards */
+  .summary-cards {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .card {
+    flex: 1 1 calc(50% - 10px);
+    /* 2 per row */
+    min-width: unset;
+  }
+
+  /* Stack Content Section */
+  .content-section {
+    flex-direction: column;
+  }
+
+  .account-detail {
+    width: 100%;
+    order: -1;
+    /* Chart first */
+    margin-bottom: 20px;
+  }
+
+  .accounts-list {
+    width: 100%;
+  }
+
+  /* Scrollable Table */
+  .accounts-list {
+    overflow-x: auto;
+  }
+
+  .accounts-list table {
+    min-width: 600px;
+    /* Force scroll if too narrow */
+  }
+
+  /* Full width slide */
+  .intervention-slide {
+    width: 100%;
+    /* Full width */
+    max-width: 100%;
+    right: -100%;
+    padding: 15px;
+    /* Reduced padding for mobile */
+  }
+
+  /* Ensure button doesn't overflow */
+  .action-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
 }
