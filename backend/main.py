@@ -14,21 +14,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Excel Config
-EXCEL_PATH = Path(
-    r"C:\Users\rohit\OneDrive\Desktop\HDFC Materials\Capstone Project\Updated Problem Statement Packs\3. Credit Card Delinquency Pack\Credit Card Delinquency Watch.xlsx"
-)
+# Excel Config - prefer file in repository root for portability
+REPO_ROOT = Path(__file__).resolve().parents[1]
+EXCEL_CANDIDATES = [
+    REPO_ROOT / "Credit_Card_Delinquency_Watch.xlsx",
+    REPO_ROOT / "Credit Card Delinquency Watch.xlsx",
+    REPO_ROOT / "backend" / "Credit_Card_Delinquency_Watch.xlsx",
+]
+
+# Pick the first candidate that exists, otherwise None
+EXCEL_PATH: Path | None = next((p for p in EXCEL_CANDIDATES if p.exists()), None)
 SHEET_NAME = "Sample"
+
+if EXCEL_PATH:
+    print(f"[INFO] Using Excel file at: {EXCEL_PATH}")
+else:
+    print(f"[WARN] No Excel file found in repo root {REPO_ROOT}. Tried: {EXCEL_CANDIDATES}")
+    print("[WARN] Backend will start with an empty account list until the Excel file is provided.")
 
 
 # -----------------------------
 # Load Accounts From Excel
 # -----------------------------
 def _build_accounts_from_excel() -> List[Dict]:
-    if not EXCEL_PATH.exists():
-        raise FileNotFoundError(f"Excel file not found at {EXCEL_PATH}")
+    # If we don't have an Excel file, return an empty list rather than crash.
+    if EXCEL_PATH is None or not EXCEL_PATH.exists():
+        return []
 
-    df = pd.read_excel(EXCEL_PATH, sheet_name=SHEET_NAME)
+    try:
+        df = pd.read_excel(EXCEL_PATH, sheet_name=SHEET_NAME)
+    except Exception as e:
+        print(f"[ERROR] Failed to read Excel file {EXCEL_PATH}: {e}")
+        return []
 
     records: List[Dict] = []
 
@@ -98,8 +115,12 @@ def _build_accounts_from_excel() -> List[Dict]:
     return records
 
 
-# Load the dataset into memory
-ACCOUNTS = _build_accounts_from_excel()
+# Load the dataset into memory (non-fatal if missing)
+try:
+    ACCOUNTS = _build_accounts_from_excel()
+except Exception as e:
+    print(f"[ERROR] Unexpected error building accounts: {e}")
+    ACCOUNTS = []
 
 
 # -----------------------------
@@ -168,9 +189,3 @@ def get_account_detail(customer_id: str):
             return a
 
     raise HTTPException(status_code=404, detail="Account not found")
-
-
-# Run manually:
-# python -m venv .venv
-# .venv\Scripts\Activate.ps1
-# uvicorn main:app --host 127.0.0.1 --port 8000
